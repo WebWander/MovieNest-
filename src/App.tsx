@@ -1,12 +1,12 @@
-
+import MoviesList from "./components/MoviesList";
+import './index.css';
 
 
 function App() {
   
   return (
     <>
-      <h1>Movie App</h1>
-     
+     <MoviesList/>
     </>
   )
 }

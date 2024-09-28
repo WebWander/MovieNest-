@@ -25,5 +25,11 @@ dist-ssr
 
 
 .env
-/tests
-/src/components
+
+/tests/components/Greet.test.tsx
+/tests/components/UserAccount.test.tsx
+/tests/components/UserList.test.tsx
+
+/src/components/Greet.tsx
+/src/components/UserAccount.tsx
+/src/components/UserList.tsx
