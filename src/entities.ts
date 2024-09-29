@@ -5,6 +5,7 @@ export type User = {
 }
 
 export interface Movie {
+    id: string;
     title: string;
     year: number;
     rating: string;

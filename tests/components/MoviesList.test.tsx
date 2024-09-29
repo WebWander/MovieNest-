@@ -1,36 +1,43 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import MoviesList from '../../src/components/MoviesList';
 import { Movie } from '../../src/entities';
-import { vi } from 'vitest';
 import { getDocs } from 'firebase/firestore';
-
+import { Mock } from 'vitest';
+import { vi } from 'vitest';
 
 // Mock Firebase Firestore
 vi.mock('firebase/firestore', () => ({
-    getFirestore: vi.fn(),
-    collection: vi.fn(),
-    getDocs: vi.fn(),
+  getFirestore: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
 }));
 
 describe('MoviesList', () => {
   it('should render loading state initially', () => {
-    render(<MoviesList />);
+    // Use act to wrap the rendering of the component
+    act(() => {
+      render(<MoviesList />);
+    });
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
-  /* it('should render no movies if there are no movies in the database', async () => {
-    
-    (getDocs as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+  it('should render no movies if there are no movies in the database', async () => {
+    // Mock getDocs to return an empty list of movies
+    (getDocs as Mock).mockResolvedValue({
       docs: [],
     });
 
-    render(<MoviesList />);
+    // Wrap the rendering in act
+    await act(async () => {
+      render(<MoviesList />);
+    });
 
-    
+    // Wait for the component to finish loading
     await waitFor(() => {
-        expect(screen.getByRole('paragraph', { name: /no movies/i })).toBeInTheDocument();
-      });
-  }); */
+      expect(screen.getByText(/no trending movies available/i)).toBeInTheDocument();
+      expect(screen.getByText(/no recommended movies available/i)).toBeInTheDocument();
+    });
+  });
 
   it('should render trending and recommended movies', async () => {
     const mockMovies: Movie[] = [
@@ -59,15 +66,18 @@ describe('MoviesList', () => {
     ];
 
     // Mock getDocs to return a list of movies
-    (getDocs as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (getDocs as Mock).mockResolvedValue({
       docs: mockMovies.map((movie) => ({
         data: () => movie,
       })),
     });
 
-    render(<MoviesList />);
+    // Wrap rendering and subsequent actions in act
+   act( () => {
+      render(<MoviesList />);
+    });
 
-    
+    // Wait for the component to finish loading and render movies
     await waitFor(() => {
       mockMovies.forEach((movie) => {
         expect(screen.getByAltText(movie.title)).toBeInTheDocument();
