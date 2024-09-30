@@ -1,4 +1,5 @@
-import MoviesList from "./components/MoviesList";
+
+import RootRouter from './AppRouter';
 import './index.css';
 
 
@@ -6,9 +7,9 @@ function App() {
   
   return (
     <>
-     <MoviesList/>
+     <RootRouter/>
     </>
   )
 }
 
-export default App
+export default App;
