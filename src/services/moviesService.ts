@@ -1,8 +1,8 @@
 import { db } from '../config/firebase';
-import { collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { Movie } from '../entities';
 
-
+// Add a new movie
 export const addMovie = async (movie: Omit<Movie, 'id'>): Promise<string> => {
   try {
     const docRef = await addDoc(collection(db, "movies"), movie);
@@ -13,7 +13,7 @@ export const addMovie = async (movie: Omit<Movie, 'id'>): Promise<string> => {
   }
 };
 
-
+// Get a single movie
 export const getMovie = async (movieId: string): Promise<Movie | null> => {
   try {
     const movieDoc = await getDoc(doc(db, "movies", movieId));
@@ -28,7 +28,7 @@ export const getMovie = async (movieId: string): Promise<Movie | null> => {
   }
 };
 
-
+// Get all movies
 export const getAllMovies = async (): Promise<Movie[]> => {
   try {
     const moviesSnapshot = await getDocs(collection(db, "movies"));
@@ -40,13 +40,21 @@ export const getAllMovies = async (): Promise<Movie[]> => {
 };
 
 
-export const getMoviesByGenre = async (genre: string): Promise<Movie[]> => {
+// Get all  genres
+export const getAllGenres = async (): Promise<string[]> => {
   try {
-    const q = query(collection(db, "movies"), where("genre", "==", genre));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Movie);
+    const moviesSnapshot = await getDocs(collection(db, "movies"));
+    const moviesList = moviesSnapshot.docs.map((doc) => doc.data() as Movie);
+    const genresSet = new Set<string>();
+
+    moviesList.forEach((movie) => {
+      const genres = movie.genre.split(',').map((g) => g.trim());
+      genres.forEach((genre) => genresSet.add(genre));
+    });
+
+    return Array.from(genresSet);
   } catch (error) {
-    console.error("Error getting movies by genre:", error);
+    console.error("Error getting genres:", error);
     throw error;
   }
 };

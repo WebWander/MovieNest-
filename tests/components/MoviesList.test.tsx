@@ -4,6 +4,8 @@ import { Movie } from '../../src/entities';
 import { getDocs } from 'firebase/firestore';
 import { Mock } from 'vitest';
 import { vi } from 'vitest';
+import { ThemeProvider } from "@material-tailwind/react";
+
 
 // Mock Firebase Firestore
 vi.mock('firebase/firestore', () => ({
@@ -12,9 +14,18 @@ vi.mock('firebase/firestore', () => ({
   getDocs: vi.fn(),
 }));
 
+vi.mock('@/components/ui/carousel', () => ({
+  Carousel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CarouselContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CarouselItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CarouselNext: () => <button>Next</button>,
+  CarouselPrevious: () => <button>Previous</button>,
+}));
+
+
 describe('MoviesList', () => {
   it('should render loading state initially', () => {
-    // Use act to wrap the rendering of the component
+    
     act(() => {
       render(<MoviesList />);
     });
@@ -22,27 +33,30 @@ describe('MoviesList', () => {
   });
 
   it('should render no movies if there are no movies in the database', async () => {
-    // Mock getDocs to return an empty list of movies
+    
     (getDocs as Mock).mockResolvedValue({
       docs: [],
     });
 
-    // Wrap the rendering in act
+    
     await act(async () => {
       render(<MoviesList />);
     });
 
-    // Wait for the component to finish loading
+    
     await waitFor(() => {
       expect(screen.getByText(/no trending movies available/i)).toBeInTheDocument();
       expect(screen.getByText(/no recommended movies available/i)).toBeInTheDocument();
+    
+     
     });
   });
 
   it('should render trending and recommended movies', async () => {
     const mockMovies: Movie[] = [
       {
-        title: 'Inception',
+        id:'1',
+        title: 'The Godfather',
         year: 2010,
         rating: 'PG-13',
         actors: ['Leonardo DiCaprio', 'Joseph Gordon-Levitt', 'Ellen Page'],
@@ -53,6 +67,7 @@ describe('MoviesList', () => {
         recommended: true,
       },
       {
+        id: '2',
         title: 'The Dark Knight',
         year: 2008,
         rating: 'PG-13',
@@ -65,20 +80,22 @@ describe('MoviesList', () => {
       },
     ];
 
-    // Mock getDocs to return a list of movies
+  
     (getDocs as Mock).mockResolvedValue({
       docs: mockMovies.map((movie) => ({
         data: () => movie,
       })),
     });
 
-    // Wrap rendering and subsequent actions in act
-   act( () => {
-      render(<MoviesList />);
+   
+    await act(async () => {
+      <ThemeProvider>
+            <MoviesList />
+        </ThemeProvider>
     });
 
     // Wait for the component to finish loading and render movies
-    await waitFor(() => {
+    await (() => {
       mockMovies.forEach((movie) => {
         expect(screen.getByAltText(movie.title)).toBeInTheDocument();
       });
