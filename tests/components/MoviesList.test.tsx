@@ -22,6 +22,9 @@ vi.mock('@/components/ui/carousel', () => ({
   CarouselPrevious: () => <button>Previous</button>,
 }));
 
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(<ThemeProvider>{ui}</ThemeProvider>);
+};
 
 describe('MoviesList', () => {
   it('should render loading state initially', () => {
@@ -37,25 +40,21 @@ describe('MoviesList', () => {
     (getDocs as Mock).mockResolvedValue({
       docs: [],
     });
-
-    
+ 
     await act(async () => {
       render(<MoviesList />);
     });
-
-    
+ 
     await waitFor(() => {
       expect(screen.getByText(/no trending movies available/i)).toBeInTheDocument();
-      expect(screen.getByText(/no recommended movies available/i)).toBeInTheDocument();
-    
-     
+      expect(screen.getByText(/no recommended movies available/i)).toBeInTheDocument(); 
     });
   });
 
   it('should render trending and recommended movies', async () => {
     const mockMovies: Movie[] = [
       {
-        id:'1',
+        id: '1',
         title: 'The Godfather',
         year: 2010,
         rating: 'PG-13',
@@ -80,25 +79,20 @@ describe('MoviesList', () => {
       },
     ];
 
-  
     (getDocs as Mock).mockResolvedValue({
       docs: mockMovies.map((movie) => ({
         data: () => movie,
       })),
     });
 
-   
-    await act(async () => {
-      <ThemeProvider>
-            <MoviesList />
-        </ThemeProvider>
-    });
+    renderWithProviders(<MoviesList />);
 
-    // Wait for the component to finish loading and render movies
-    await (() => {
+    await(() => {
       mockMovies.forEach((movie) => {
         expect(screen.getByAltText(movie.title)).toBeInTheDocument();
       });
     });
   });
 });
+
+ 

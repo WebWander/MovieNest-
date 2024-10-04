@@ -3,7 +3,7 @@ import React from 'react';
 import MoviesList from './MoviesList';
 
 
-const App: React.FC = () => {
+const HomePage: React.FC = () => {
   return (
     <>
       {/* <Navbar /> */}
@@ -12,5 +12,5 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default HomePage;
 

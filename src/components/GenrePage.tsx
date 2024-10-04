@@ -16,7 +16,7 @@ import MovieButton from './ui/MovieButton';
 
 
 const MoviesByGenre: React.FC = () => {
-  const { genre } = useParams<{ genre: string }>(); // Get the genre from the URL parameter
+  const { genre } = useParams<{ genre: string }>(); 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,13 +36,13 @@ const MoviesByGenre: React.FC = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        // Fetch all movies from Firestore
         const allMovies = await getAllMovies();
 
-        // Filter movies based on the genre
         const filteredMovies = allMovies.filter((movie) =>
-          movie.genre.split(',').map((g) => g.trim().toLowerCase()).includes(movie.genre.toLowerCase())
+          movie.genre.split(',').map((g) => g.trim().toLowerCase()).includes(genre?.toLowerCase() ?? '')
         );
+        
+        
 
         setMovies(filteredMovies);
       } catch (error) {
