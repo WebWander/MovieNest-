@@ -65,7 +65,10 @@ const MoviesByGenre: React.FC = () => {
 
   return (
     <div className='p-6'>
-      <h2 className="text-3xl font-bold mb-16 p-10 md:px-10">{genre?.charAt(0).toUpperCase() + genre.slice(1).toLowerCase()} Films</h2>
+      <h2 className="text-3xl font-bold mb-16 p-10 md:px-10">
+  {genre ? genre.charAt(0).toUpperCase() + genre.slice(1).toLowerCase() : 'Unknown'} Films
+</h2>
+
       <section className="flex space-x-4">
         {movies.length === 0 ? (
           <p>No Films in this genre at the moment</p>
