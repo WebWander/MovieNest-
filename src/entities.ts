@@ -1,8 +1,11 @@
-export type User = {
-    id: number;
-    name:string;
-    isAdmin?: boolean;
-}
+export interface User {
+    uid: string; 
+    email: string; 
+    username: string; 
+    bookmarkedMovies?: string[]; 
+    photoURL?: string; 
+    createdAt?: Date; 
+  }
 
 export interface Movie {
     id: string;

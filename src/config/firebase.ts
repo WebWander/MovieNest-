@@ -1,9 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";  
-import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getFirestore, collection } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-
-
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_APIKEY,
@@ -15,10 +14,9 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENTID,
 };
 
-
 const app = initializeApp(firebaseConfig);
 
-
+// Analytics
 let analytics;
 isSupported().then((supported) => {
   if (supported) {
@@ -26,8 +24,16 @@ isSupported().then((supported) => {
   }
 });
 
-const storage = getStorage(app);
-const db = getFirestore(app);  // Firestore for the database
-/* const auth = getAuth(app); */
+// Firestore for the database
+const db = getFirestore(app);
 
-export { app, db, analytics, storage };  
+// Firebase Authentication
+const auth = getAuth(app);
+
+// Firebase Storage
+const storage = getStorage(app);
+
+// Optionally, you can export a reference to the users collection directly
+export const usersRef = collection(db, 'users');
+
+export { app, db, analytics, storage, auth };

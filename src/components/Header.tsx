@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FiMenu, FiX, FiSearch} from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiMenu, FiX, FiSearch } from 'react-icons/fi';
 import { getAllGenres } from '@/services/moviesService';
 import SearchComponent from './SearchBox';
-
+import { useAuth } from '@/context/AuthContext';
 
 interface NavbarProps {
   onSearch?: (query: string) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = () => {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+
+  const handleLogout = async () => {
+    const response = await logout();
+    if (response.success) {
+      navigate('/login'); // Redirect to login page after logout
+    } else {
+      alert(response.msg);
+    }
+  };
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -30,7 +41,6 @@ const Navbar: React.FC<NavbarProps> = () => {
 
   return (
     <nav className="border-b border-white/10 text-white px-4 py-4 flex items-center justify-between md:px-6 lg:px-8">
- 
       <div className="flex items-center space-x-4">
         <div className="text-xl font-bold">Logo</div>
 
@@ -41,44 +51,61 @@ const Navbar: React.FC<NavbarProps> = () => {
           {isMobileMenuOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
         </button>
 
-       
+        {/* Desktop Menu */}
         <ul className="hidden md:flex items-center space-x-6">
           <li className="hover:text-gray-400 cursor-pointer">
             <Link to="/">Home</Link>
           </li>
-          <li className="hover:text-gray-400 cursor-pointer">
-            <Link to="/my-list">My List</Link>
-          </li>
-          <li
-            className="hover:text-gray-400 cursor-pointer relative"
-            onMouseEnter={() => setIsDropdownOpen(true)}
-            onMouseLeave={() => setIsDropdownOpen(false)}
-          >
-            Categories
-            <div
-              className={`z-20 absolute top-6 left-0 bg-gray-800 border border-gray-600 rounded shadow-lg w-96 p-4 ${
-                isDropdownOpen ? 'block' : 'hidden'
-              }`}
-            >
-              <ul className="grid grid-cols-4 gap-2 overflow-visible z-20">
-                {categories.map((category, index) => (
-                  <li key={index} className="hover:bg-gray-700 p-2 rounded cursor-pointer">
-                    <Link to={`/category/${category.toLowerCase()}`}>{category}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </li>
+          {isAuthenticated && (
+            <>
+              <li className="hover:text-gray-400 cursor-pointer">
+                <Link to="/my-list">My List</Link>
+              </li>
+              <li
+                className="hover:text-gray-400 cursor-pointer relative"
+                onMouseEnter={() => setIsDropdownOpen(true)}
+                onMouseLeave={() => setIsDropdownOpen(false)}
+              >
+                Categories
+                <div
+                  className={`z-20 absolute top-6 left-0 bg-gray-800 border border-gray-600 rounded shadow-lg w-96 p-4 ${
+                    isDropdownOpen ? 'block' : 'hidden'
+                  }`}
+                >
+                  <ul className="grid grid-cols-4 gap-2 overflow-visible z-20">
+                    {categories.map((category, index) => (
+                      <li key={index} className="hover:bg-gray-700 p-2 rounded cursor-pointer">
+                        <Link to={`/category/${category.toLowerCase()}`}>{category}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+              <li className="hover:text-gray-400 cursor-pointer">
+                <button onClick={handleLogout}>Logout</button>
+              </li>
+            </>
+          )}
+          {!isAuthenticated && (
+            <>
+              <li className="hover:text-gray-400 cursor-pointer">
+                <Link to="/login">Login</Link>
+              </li>
+              <li className="hover:text-gray-400 cursor-pointer">
+                <Link to="/signup">Sign Up</Link>
+              </li>
+            </>
+          )}
         </ul>
       </div>
 
       {/* Search and Profile Section */}
       <div className="hidden md:flex items-center space-x-4">
-       <SearchComponent/>
+        <SearchComponent />
       </div>
 
-       {/* Mobile Search Icon */}
-       <div className="md:hidden flex items-center space-x-4">
+      {/* Mobile Search Icon */}
+      <div className="md:hidden flex items-center space-x-4">
         <button
           className="p-2 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
           onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -92,36 +119,63 @@ const Navbar: React.FC<NavbarProps> = () => {
         <div className="absolute w-full top-16 left-0 right-0 bg-gray-800 border-t border-gray-600 md:hidden z-50">
           <ul className="flex flex-col items-start space-y-4 px-4 py-6">
             <li className="hover:text-gray-400 cursor-pointer">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
+                Home
+              </Link>
             </li>
-            <li className="hover:text-gray-400 cursor-pointer">
-              <Link to="/my-list" onClick={() => setIsMobileMenuOpen(false)}>My List</Link>
-            </li>
-            <li
-              className="hover:text-gray-400 cursor-pointer relative"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              Categories
-              <div
-                className={`z-20 mt-2 bg-gray-800 border border-gray-600 rounded shadow-lg w-full ${
-                  isDropdownOpen ? 'block' : 'hidden'
-                }`}
-              >
-                <ul className="grid grid-cols-4 gap-4 p-4">
-                  {categories.map((category, index) => (
-                    <li key={index} className="hover:bg-gray-700 p-2 rounded cursor-pointer">
-                      <Link to={`/category/${category.toLowerCase()}`} onClick={() => setIsMobileMenuOpen(false)}>
-                        {category}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
+            {isAuthenticated && (
+              <>
+                <li className="hover:text-gray-400 cursor-pointer">
+                  <Link to="/my-list" onClick={() => setIsMobileMenuOpen(false)}>
+                    My List
+                  </Link>
+                </li>
+                <li
+                  className="hover:text-gray-400 cursor-pointer relative"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  Categories
+                  <div
+                    className={`z-20 mt-2 bg-gray-800 border border-gray-600 rounded shadow-lg w-full ${
+                      isDropdownOpen ? 'block' : 'hidden'
+                    }`}
+                  >
+                    <ul className="grid grid-cols-4 gap-4 p-4">
+                      {categories.map((category, index) => (
+                        <li key={index} className="hover:bg-gray-700 p-2 rounded cursor-pointer">
+                          <Link
+                            to={`/category/${category.toLowerCase()}`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {category}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </li>
+                <li className="hover:text-gray-400 cursor-pointer">
+                  <button onClick={() => handleLogout()}>Logout</button>
+                </li>
+              </>
+            )}
+            {!isAuthenticated && (
+              <>
+                <li className="hover:text-gray-400 cursor-pointer">
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                    Login
+                  </Link>
+                </li>
+                <li className="hover:text-gray-400 cursor-pointer">
+                  <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                    Sign Up
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       )}
-
 
       {/* Mobile Search Box */}
       {isSearchOpen && (

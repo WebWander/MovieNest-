@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { arrayUnion, collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Movie } from '../entities';
 
@@ -14,11 +14,13 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { FaPlay, FaPlus, FaThumbsUp, FaChevronDown  } from 'react-icons/fa';
 import MovieButton from './ui/MovieButton';
+import { useAuth } from '@/context/AuthContext';
 
 const MoviesList: React.FC = () => {
   const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
   const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -64,6 +66,23 @@ const MoviesList: React.FC = () => {
     }
   };
 
+  const addToMyList = async (movie: Movie) => {
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, {
+          bookmarks: arrayUnion(movie),
+        });
+        alert(`${movie.title} added to your list!`);
+      } catch (error) {
+        console.error('Error adding to bookmarks:', error);
+      }
+    } else {
+      alert('Please log in to add movies to your list.');
+    }
+  };
+
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -101,6 +120,7 @@ const MoviesList: React.FC = () => {
                             <MovieButton
                               icon={<FaPlus />}
                               label="Add to My List"
+                              onClick={() => addToMyList(movie)}
                             />
                             <div className="ml-16">
                              <MovieButton
@@ -166,6 +186,7 @@ const MoviesList: React.FC = () => {
                             <MovieButton
                               icon={<FaPlus />}
                               label="Add to My List"
+                              onClick={() => addToMyList(movie)}
                             />
                             <div className="ml-16">
                              <MovieButton
