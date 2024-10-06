@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiSearch} from 'react-icons/fi';
 import { getAllGenres } from '@/services/moviesService';
+import SearchComponent from './SearchBox';
+
 
 interface NavbarProps {
   onSearch?: (query: string) => void;
@@ -11,6 +13,7 @@ const Navbar: React.FC<NavbarProps> = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -71,45 +74,22 @@ const Navbar: React.FC<NavbarProps> = () => {
 
       {/* Search and Profile Section */}
       <div className="hidden md:flex items-center space-x-4">
-        {/* <input
-          type="text"
-          placeholder="Search"
-          className="bg-gray-900 rounded-md py-1 px-4 text-white focus:outline-none"
-        /> */}
-         <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              className="bg-gray-900 text-gray-600 py-2 px-2 pl-12 pr-8 rounded-lg focus:outline-none focus:ring focus:ring-gray-800"
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-gray-600 absolute top-1/2 transform -translate-y-1/2 left-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-    
-        <button className="p-2 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
-          <img
-            src="https://via.placeholder.com/40"
-            alt="Profile"
-            className="w-8 h-8 rounded-full"
-          />
+       <SearchComponent/>
+      </div>
+
+       {/* Mobile Search Icon */}
+       <div className="md:hidden flex items-center space-x-4">
+        <button
+          className="p-2 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+          onClick={() => setIsSearchOpen(!isSearchOpen)}
+        >
+          <FiSearch className="h-6 w-6" />
         </button>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="absolute w-full top-16 left-0 right-0 bg-black border-t border-gray-600 md:hidden">
+        <div className="absolute w-full top-16 left-0 right-0 bg-gray-800 border-t border-gray-600 md:hidden z-50">
           <ul className="flex flex-col items-start space-y-4 px-4 py-6">
             <li className="hover:text-gray-400 cursor-pointer">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
@@ -127,7 +107,7 @@ const Navbar: React.FC<NavbarProps> = () => {
                   isDropdownOpen ? 'block' : 'hidden'
                 }`}
               >
-                <ul className="grid grid-cols-1 gap-4 p-4">
+                <ul className="grid grid-cols-4 gap-4 p-4">
                   {categories.map((category, index) => (
                     <li key={index} className="hover:bg-gray-700 p-2 rounded cursor-pointer">
                       <Link to={`/category/${category.toLowerCase()}`} onClick={() => setIsMobileMenuOpen(false)}>
@@ -139,6 +119,14 @@ const Navbar: React.FC<NavbarProps> = () => {
               </div>
             </li>
           </ul>
+        </div>
+      )}
+
+
+      {/* Mobile Search Box */}
+      {isSearchOpen && (
+        <div className="absolute top-16 left-0 right-0 w-full bg-black px-4 py-4 md:hidden z-50">
+          <SearchComponent />
         </div>
       )}
     </nav>
