@@ -12,6 +12,8 @@ describe('Navbar', () => {
       }));
 
     const renderComponent = () => {
+
+      
         render(
             <BrowserRouter>
             <Navbar/>
@@ -25,24 +27,21 @@ describe('Navbar', () => {
         }
       }
 
-    it('should render Links in the Navbar', () => {
+    it('should render Links in the Navbar', async() => {
      const { homeLink, myListLink, categoriesLink} = renderComponent();
 
+     
      expect(homeLink).toHaveAttribute('href', '/');
      expect(myListLink).toHaveAttribute('href', '/my-list');
      expect(categoriesLink).toBeInTheDocument();
  
-    })
+    }) 
 
     it('should render dynamic category links correctly', async () => {
         
         (getAllGenres as Mock).mockResolvedValue(['Action', 'Comedy', 'Drama']);
     
-        render(
-          <BrowserRouter>
-            <Navbar />
-          </BrowserRouter>
-        );
+       renderComponent();
     
         await waitFor(() => {
           expect(screen.getByRole('link', { name: /action/i })).toBeInTheDocument();
